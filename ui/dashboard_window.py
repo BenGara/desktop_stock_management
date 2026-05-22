@@ -1,13 +1,17 @@
-"""UI module for the main dashboard window."""
+"""Module de l'interface utilisateur pour la fenêtre principale du tableau de bord."""
 
 import tkinter as tk
 
 
 class DashboardWindow:
-    """Displays the stock management dashboard with key inventory indicators."""
+    """Affiche le tableau de bord de gestion des stocks
+    avec les principales informations du stock.
+    """
 
     def __init__(self, root):
-        """Build and display the dashboard layout inside the given root window."""
+        """Crée et affiche la mise en page du tableau de bord
+        à l'intérieur de la fenêtre initiale donnée.
+        """
         self.root = root
         self.root.title("Dashboard")
 
@@ -26,11 +30,13 @@ class DashboardWindow:
         self.broken_label.pack()
 
     def refresh(self):
-        """Reload dashboard data and update the displayed labels."""
+        """Actualise les données du tableau de bord
+        et met à jour les intitulés affichés.
+        """
         self.in_stock_label.config(text="Matériels en stock")
         self.assigned_label.config(text="Matériels affectés")
         self.broken_label.config(text="Matériels en panne")
 
     def set_title(self, title):
-        """Update the root window title."""
+        """Met à jour le titre de la fenêtre initiale."""
         self.root.title(title)

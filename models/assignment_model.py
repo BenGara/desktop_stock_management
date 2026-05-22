@@ -1,17 +1,17 @@
-"""Model handling material assignment operations."""
+"""Modèle de gestion des opérations d'affectation des matériels."""
 
 from database import get_connection
 
 
 class AssignmentModel:
-    """Provides static methods to manage material assignments."""
+    """Fournit des méthodes pour gérer les affectations des matériels."""
 
     @staticmethod
     def assign_material(material_id, employee_id):
-        """Assign a material to an employee.
+        """Attribue un matériel à un employé.
 
-        Raises ValueError if the material does not exist, is broken,
-        or is already assigned to someone else.
+        Génère une erreur ValueError si le matériel n'existe pas, est cassé
+        ou est déjà attribué à quelqu'un d'autre.
         """
         connection = get_connection()
 
@@ -70,7 +70,7 @@ class AssignmentModel:
 
     @staticmethod
     def get_all_assignments():
-        """Return all active assignments from the database."""
+        """Renvoie toutes les affectations actives de la base de données."""
         connection = get_connection()
 
         assignments = connection.execute(

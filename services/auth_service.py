@@ -1,4 +1,4 @@
-"""Service layer handling authentication logic."""
+"""Service pour gérer la logique d'authentification."""
 
 import hashlib
 
@@ -6,20 +6,26 @@ from models.user_model import UserModel
 
 
 class AuthService:
-    """Provides static methods for password hashing and user login."""
+    """Fournit des méthodes pour le hachage des mots de passe
+    et la connexion des utilisateurs.
+    """
 
     @staticmethod
     def hash_password(password):
-        """Return the SHA-256 hex digest of the given plain-text password."""
+        """Renvoie le hachage hexadécimal SHA-256
+        du mot de passe en clair fourni.
+        """
         return hashlib.sha256(
             password.encode()
         ).hexdigest()
 
     @staticmethod
     def login(email, password):
-        """Authenticate a user by email and password.
+        """Authentifie un utilisateur à l'aide de son adresse e-mail
+        et de son mot de passe.
 
-        Returns the user row on success, or None if credentials are invalid.
+        Renvoie la ligne de l'utilisateur en cas de succès,
+        ou None si les identifiants sont invalides.
         """
         user = UserModel.get_user_by_email(email)
 

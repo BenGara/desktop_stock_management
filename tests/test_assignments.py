@@ -1,4 +1,4 @@
-"""Unit tests for the AssignmentModel."""
+"""Tests unitaires pour le modèle AssignmentModel."""
 
 import unittest
 
@@ -6,10 +6,12 @@ from models.assignment_model import AssignmentModel
 
 
 class TestAssignments(unittest.TestCase):
-    """Test suite for material assignment operations."""
+    """Série de tests pour les opérations d'affectation de matériel."""
 
     def test_assign_material(self):
-        """Verify that assigning an existing available material raises no error."""
+        """Vérifie que l'affectation d'un matériel disponible existant
+        ne génère aucune erreur.
+        """
         try:
             AssignmentModel.assign_material(1, 1)
         except ValueError:

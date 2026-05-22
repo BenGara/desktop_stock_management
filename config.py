@@ -1,4 +1,4 @@
-"""Configuration constants for the Stock Management application."""
+"""Constantes de configuration."""
 
 APP_NAME = "Stock Management"
 

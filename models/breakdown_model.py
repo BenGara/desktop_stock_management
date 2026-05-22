@@ -1,14 +1,16 @@
-"""Model handling material breakdown declarations."""
+"""Modèle de gestion des déclarations des pannes des matériels."""
 
 from database import get_connection
 
 
 class BreakdownModel:
-    """Provides static methods to manage material breakdowns."""
+    """Fournit des méthodes pour gérer les pannes des matériels."""
 
     @staticmethod
     def declare_breakdown(material_id, reported_by, description):
-        """Record a breakdown for a material and mark it as broken."""
+        """Enregistre une panne pour un matériel
+        et le note comme défectueux.
+        """
         connection = get_connection()
 
         connection.execute(
@@ -41,7 +43,7 @@ class BreakdownModel:
 
     @staticmethod
     def get_all_breakdowns():
-        """Return all breakdown records from the database."""
+        """Renvoie tous les enregistrements de pannes de la base de données."""
         connection = get_connection()
 
         breakdowns = connection.execute(

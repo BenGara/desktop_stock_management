@@ -1,16 +1,16 @@
-"""Model handling material creation and retrieval."""
+"""Modèle de gestion de la création et de la récupération des données."""
 
 from database import get_connection
 
 
 class MaterialModel:
-    """Provides static methods to manage stock materials."""
+    """Fournit des méthodes pour gérer les matériels en stock."""
 
     @staticmethod
     def create_material(name, serial_number, category_id, quantity):
-        """Insert a new material into the database.
+        """Insère un nouveau matériel dans la base de données.
 
-        Raises ValueError if the serial number already exists.
+        Génère une erreur ValueError si le numéro de série existe déjà.
         """
         connection = get_connection()
 
@@ -46,7 +46,7 @@ class MaterialModel:
 
     @staticmethod
     def get_all_materials():
-        """Return all materials from the database."""
+        """Renvoie tous les matériels de la base de données."""
         connection = get_connection()
 
         materials = connection.execute(

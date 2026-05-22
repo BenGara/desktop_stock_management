@@ -1,4 +1,4 @@
-"""Unit tests for the MaterialModel."""
+"""Tests unitaires pour le modèle MaterialModel."""
 
 import unittest
 
@@ -6,10 +6,14 @@ from models.material_model import MaterialModel
 
 
 class TestMaterials(unittest.TestCase):
-    """Test suite for material creation and retrieval operations."""
+    """Série de tests pour les opérations de création
+    et de récupération de matériels.
+    """
 
     def test_create_material(self):
-        """Verify that creating a material with valid data raises no error."""
+        """Vérifier que la création d'un matériel avec des données valides
+        ne génère aucune erreur.
+        """
         try:
             MaterialModel.create_material(
                 "Dell Latitude",

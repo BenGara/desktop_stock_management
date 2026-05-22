@@ -1,4 +1,4 @@
-"""UI module for the login window."""
+"""Module de l'interface utilisateur pour la fenêtre de connexion."""
 
 import tkinter as tk
 from tkinter import messagebox
@@ -8,10 +8,14 @@ from ui.dashboard_window import DashboardWindow
 
 
 class LoginWindow:
-    """Displays the login form and handles user authentication."""
+    """Affiche le formulaire de connexionet gère l'authentification
+    de l'utilisateur.
+    """
 
     def __init__(self, root):
-        """Build and display the login form inside the given root window."""
+        """Crée et affiche le formulaire de connexion
+        à l'intérieur de la fenêtre initiale donnée.
+        """
         self.root = root
         self.root.title("Connexion")
         self.root.geometry("300x200")
@@ -36,7 +40,9 @@ class LoginWindow:
         ).pack(pady=10)
 
     def login(self):
-        """Read credentials from the form and authenticate the user."""
+        """Lit les indentifiants dans le formulaire
+        et authentifie l'utilisateur.
+        """
         email = self.email_entry.get()
         password = self.password_entry.get()
 
@@ -65,6 +71,8 @@ class LoginWindow:
             )
 
     def clear_fields(self):
-        """Clear the email and password input fields."""
+        """Efface les champs de saisie de l'adresse e-mail
+        et du mot de passe.
+        """
         self.email_entry.delete(0, tk.END)
         self.password_entry.delete(0, tk.END)

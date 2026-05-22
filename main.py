@@ -1,4 +1,4 @@
-"""Entry point for the Stock Management desktop application."""
+"""Point d'entrée de l'application."""
 
 import tkinter as tk
 
@@ -6,7 +6,9 @@ from ui.login_window import LoginWindow
 
 
 def main():
-    """Initialise the Tkinter root window and launch the login screen."""
+    """Initialise l'écran de connexion en tant que
+    première fenêtre de Tkinter.
+    """
     root = tk.Tk()
 
     LoginWindow(root)

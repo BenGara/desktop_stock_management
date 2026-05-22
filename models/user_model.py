@@ -1,14 +1,14 @@
-"""Model handling user creation and retrieval."""
+"""Modèle de gestion de la création et de la récupération des utilisateurs."""
 
 from database import get_connection
 
 
 class UserModel:
-    """Provides static methods to manage application users."""
+    """Fournit des méthodes pour gérer les utilisateurs de l'application."""
 
     @staticmethod
     def create_user(firstname, lastname, email, password, role_id):
-        """Insert a new user into the database."""
+        """Ajoute un nouvel utilisateur dans la base de données."""
         connection = get_connection()
 
         connection.execute(
@@ -36,7 +36,9 @@ class UserModel:
 
     @staticmethod
     def get_user_by_email(email):
-        """Return the user row matching the given email, or None."""
+        """Renvoie la ligne correspondant à
+        l'adresse e-mail indiquée, ou None.
+        """
         connection = get_connection()
 
         user = connection.execute(
