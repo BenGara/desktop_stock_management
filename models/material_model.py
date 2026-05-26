@@ -1,5 +1,7 @@
 """Modèle de gestion de la création et de la récupération des données."""
 
+from multiprocessing import connection
+
 from database import get_connection
 
 
@@ -48,11 +50,16 @@ class MaterialModel:
     def get_all_materials():
         """Renvoie tous les matériels de la base de données."""
         connection = get_connection()
+        
+        connection.row_factory = None 
+        
+        cursor = connection.cursor()
 
-        materials = connection.execute(
-            "SELECT * FROM materials"
-        ).fetchall()
 
+        cursor.execute("SELECT materials.id, materials.name, materials.serial_number, categories.name AS category_name, materials.quantity, materials.status, materials.purchase_date FROM materials INNER JOIN categories ON materials.category_id = categories.id")
+        materials = cursor.fetchall()
+
+        cursor.close()
         connection.close()
 
         return materials

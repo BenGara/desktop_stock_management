@@ -49,3 +49,19 @@ class UserModel:
         connection.close()
 
         return user
+    
+    @staticmethod
+    def get_all_users():
+        """Renvoie une liste de tous les utilisateurs."""
+        connection = get_connection()
+        
+        connection.row_factory = None 
+        
+        cursor = connection.cursor()
+        cursor.execute("SELECT users.id, users.firstname, users.lastname, users.email, roles.name AS role FROM users INNER JOIN roles ON users.role_id = roles.id")
+        users = cursor.fetchall()
+
+        cursor.close()
+        connection.close()
+
+        return users
