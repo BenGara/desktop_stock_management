@@ -188,54 +188,55 @@ class UserWindow:
         self.dashboard_parent = dashboard_parent
         self.root = root
         self.root.title("Gestion des Utilisateurs")
-        self.root.geometry("750x450")
+        self.root.geometry("680x450")
+        self.root.configure(bg="#F8F9FA")
 
         def retour_dashboard_window():
             self.root.destroy()
             self.dashboard_parent.root.deiconify()
+            self.dashboard_parent.refresh()
 
-        tk.Label(root, text="Liste des Utilisateurs", font=("Arial", 14, "bold")).pack(pady=10)
+        self.root.protocol("WM_DELETE_WINDOW", retour_dashboard_window)
 
+        tk.Label(
+            root, text="Base des Utilisateurs & Collaborateurs", 
+            font=("Arial", 14, "bold"), bg="#F8F9FA", fg="#2C3E50"
+        ).pack(pady=(15, 5), anchor="w", padx=20)
+
+        # Tableau
         colonnes = ('id', 'prenom', 'nom', 'email', 'role')
-        self.tableau = ttk.Treeview(root, columns=colonnes, show='headings')
-        
+        self.tableau = ttk.Treeview(root, columns=colonnes, show='headings', selectmode="browse")
+
+        self.tableau.heading('id', text='ID')
         self.tableau.heading('prenom', text='Prénom')
         self.tableau.heading('nom', text='Nom')
         self.tableau.heading('email', text='Adresse Email')
         self.tableau.heading('role', text='Rôle')
-        
+
         self.tableau.column('id', width=0, minwidth=0, stretch=False)
         self.tableau.column('prenom', width=120)
         self.tableau.column('nom', width=120)
         self.tableau.column('email', width=220)
         self.tableau.column('role', width=130)
-        
+
         self.tableau.pack(fill="both", expand=True, padx=20, pady=10)
 
-        zone_boutons = tk.Frame(root)
-        zone_boutons.pack(fill="x", side=tk.BOTTOM, pady=20)
+        # Zone boutons inférieurs
+        zone_boutons = tk.Frame(root, bg="#F8F9FA")
+        zone_boutons.pack(fill="x", side=tk.BOTTOM, pady=15, padx=10)
 
-        btn_ajouter = tk.Button(
-            zone_boutons, text="Ajouter", command=self.ajouter_utilisateur,
-            bg="#28A745", fg="white", font=("Arial", 9, "bold"), padx=10, pady=5, cursor="hand2"
-        )
+        style_btn = {"font": ("Arial", 9, "bold"), "fg": "white", "relief": "flat", "padx": 15, "pady": 6, "cursor": "hand2"}
+
+        btn_ajouter = tk.Button(zone_boutons, text="Ajouter", command=self.ajouter_utilisateur, bg="#27AE60", **style_btn)
         btn_ajouter.pack(side=tk.LEFT, padx=10)
 
-        btn_modifier = tk.Button(
-            zone_boutons, text="Modifier", command=self.modification_utilisateur,
-            bg="#007ACC", fg="white", font=("Arial", 9, "bold"), padx=10, pady=5, cursor="hand2"
-        )
+        btn_modifier = tk.Button(zone_boutons, text="Modifier", command=self.modification_utilisateur, bg="#2980B9", **style_btn)
         btn_modifier.pack(side=tk.LEFT, padx=10)
 
-        btn_supprimer = tk.Button(
-            zone_boutons, text="Supprimer", command=self.suppression_utilisateur,
-            bg="#DC3545", fg="white", font=("Arial", 9, "bold"), padx=10, pady=5, cursor="hand2"
-        )
+        btn_supprimer = tk.Button(zone_boutons, text="Supprimer", command=self.suppression_utilisateur, bg="#C0392B", **style_btn)
         btn_supprimer.pack(side=tk.LEFT, padx=10)
 
-        btn_retour = tk.Button(zone_boutons, text="Retour", command=retour_dashboard_window, padx=20)
+        btn_retour = tk.Button(zone_boutons, text="Retour", command=retour_dashboard_window, bg="#7F8C8D", **style_btn)
         btn_retour.pack(side=tk.RIGHT, padx=10)
-        
-        self.root.protocol("WM_DELETE_WINDOW", retour_dashboard_window)
 
-        self.charger_utilisateurs()
+        self.charger_utilisateurs()        
