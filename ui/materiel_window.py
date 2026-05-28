@@ -26,7 +26,7 @@ class MaterielWindow:
         """Affiche une boîte de dialogue pour ajouter un nouveau matériel."""
         popup = tk.Toplevel(self.root)
         popup.title("Ajouter un matériel")
-        popup.geometry("350x400")
+        popup.geometry("350x350")
         popup.grab_set()  # Empêche d'interagir avec la fenêtre principale tant que le popup est ouvert
         
         # Titre du formulaire
@@ -48,39 +48,27 @@ class MaterielWindow:
         
         # Champ Catégorie
         tk.Label(form_frame, text="Catégorie : ", anchor='w').pack(anchor='w', pady=(5,0))
-        
-        categories = MaterialModel.get_all_categories_names()  # Récupère les noms des catégories pour les afficher dans la Combobox
+        categories = MaterialModel.get_all_categories_names()
         entry_categorie = ttk.Combobox(form_frame, values=categories, state="readonly")
-        entry_categorie.current(0)  # Sélectionne la première catégorie par défaut
+        entry_categorie.current(0)
         entry_categorie.pack(fill="x", pady=2)
         
         # Champ Quantité
         tk.Label(form_frame, text="Quantité :").pack(anchor="w")
-
-        # On définit des bornes (ex: de 0 à 10000)
         self.entry_quantite = ttk.Spinbox(form_frame, from_=0, to=10000, increment=1)
         self.entry_quantite.pack(fill="x", pady=5)        
-        # Champ Status
-        tk.Label(form_frame, text="Status : ", anchor='w').pack(anchor='w', pady=(5,0))
-        entry_status = tk.Entry(form_frame)
-        entry_status.pack(fill="x", pady=2)
 
-        # Champ Date d'achat
-        tk.Label(form_frame, text="Date d'achat (YYYY-MM-DD) : ", anchor='w').pack(anchor='w', pady=(5,0))
-        entry_date_achat = tk.Entry(form_frame)
-        entry_date_achat.pack(fill="x", pady=2)
+        def soumettre_ajout(self, nom, serial_number, categorie, quantite, date_achat):
+            """Soumet les informations du nouveau matériel au modèle."""
+            try:
+                MaterialModel.create_material(nom, serial_number, categorie, quantite, date_achat)
+                self.charger_materiels()
+                messagebox.showinfo("Ajouter", "Le matériel a été ajouté avec succès.")
+            except Exception as e:
+                messagebox.showerror("Ajouter", f"Erreur lors de l'ajout du matériel : {e}")
 
         # Bouton pour soumettre le formulaire
-        tk.Button(popup, text="Ajouter", command=lambda: self.soumettre_ajout(entry_nom.get(), entry_serial.get(), entry_categorie.get(), entry_quantite.get(), entry_date_achat.get())).pack(pady=20)
-
-    def soumettre_ajout(self, nom, serial_number, categorie, quantite, date_achat):
-        """Soumet les informations du nouveau matériel au modèle."""
-        try:
-            MaterialModel.create_material(nom, serial_number, categorie, quantite, date_achat)
-            self.charger_materiels()
-            messagebox.showinfo("Ajouter", "Le matériel a été ajouté avec succès.")
-        except Exception as e:
-            messagebox.showerror("Ajouter", f"Erreur lors de l'ajout du matériel : {e}")
+        tk.Button(popup, text="Ajouter", command=lambda: soumettre_ajout(entry_nom.get(), entry_serial.get(), entry_categorie.get(), self.entry_quantite.get(), None)).pack(pady=20)
 
     def modifier_materiel(self):
         """Affiche une boîte de dialogue pour modifier un matériel existant."""

@@ -23,13 +23,7 @@ class UserModel:
             )
             VALUES (?, ?, ?, ?, ?)
             ''',
-            (
-                firstname,
-                lastname,
-                email,
-                password,
-                role_id
-            )
+            (firstname,lastname,email,password,role_id)
         )
 
         connection.commit()
@@ -56,17 +50,28 @@ class UserModel:
     def get_all_users():
         """Renvoie une liste de tous les utilisateurs."""
         connection = get_connection()
-        
         connection.row_factory = None 
-        
         cursor = connection.cursor()
+        
         cursor.execute("SELECT users.id, users.firstname, users.lastname, users.email, roles.name AS role FROM users INNER JOIN roles ON users.role_id = roles.id")
         users = cursor.fetchall()
 
         cursor.close()
         connection.close()
-
         return users
+    
+    @staticmethod
+    def get_all_role_names():
+        """Récupère la liste de tous les noms de rôles existants."""
+        connection = get_connection()
+        connection.row_factory = None 
+        cursor = connection.cursor()
+        
+        cursor.execute("SELECT name FROM roles")
+        roles = [row[0] for row in cursor.fetchall()] 
+        
+        connection.close()
+        return roles
     
     @staticmethod
     def update_user(user_id, firstname, lastname, email, role_id):
@@ -102,10 +107,7 @@ class UserModel:
             SET password = ?
             WHERE id = ?
             ''',
-            (
-                new_password,
-                user_id
-            )
+            (new_password,user_id)
         )
 
         connection.commit()
