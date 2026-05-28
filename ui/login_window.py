@@ -60,7 +60,7 @@ class LoginWindow:
             # gestion des roles à faire
             dashboard_root = tk.Tk()
 
-            DashboardWindow(dashboard_root)
+            DashboardWindow(dashboard_root, self.root)
 
             dashboard_root.mainloop()
 

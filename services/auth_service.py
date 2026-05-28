@@ -38,3 +38,10 @@ class AuthService:
             return None
 
         return user
+    
+    @staticmethod
+    def deconnexion():
+        """Réinitialise la session de l'utilisateur actuel."""
+        # Si tu stockes l'utilisateur connecté dans une variable globale ou de classe :
+        AuthService.utilisateur_connecte = None
+        pass

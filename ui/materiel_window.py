@@ -2,16 +2,15 @@
 
 import tkinter as tk
 from tkinter import ttk, messagebox
-from models.material_model import MaterialModel
+from services.materiel_service import MaterielService
 
 class MaterielWindow:
-    """Affiche les informations des matériels 
-    et permet de gérer les matériels du stock."""
+    """Affiche les informations des matériels et permet de gérer les matériels du stock."""
 
     def charger_materiels(self):
-        """Récupère les matériels du modèle et les insère dans le Treeview"""
+        """Récupère les matériels nettoyés du service et les insère dans le Treeview."""
         try:
-            liste_materiels = MaterialModel.get_all_materials()
+            liste_materiels = MaterielService.obtenir_tous_materiels()
             
             for item in self.tableau.get_children():
                 self.tableau.delete(item)
@@ -20,171 +19,249 @@ class MaterielWindow:
                 self.tableau.insert('', tk.END, values=materiel)
                 
         except Exception as e:
-            print(f"Erreur lors du chargement des matériels : {e}")
+            messagebox.showerror("Erreur", f"Impossible de charger les matériels : {e}", parent=self.root)
     
     def ajouter_materiel(self):
         """Affiche une boîte de dialogue pour ajouter un nouveau matériel."""
         popup = tk.Toplevel(self.root)
         popup.title("Ajouter un matériel")
-        popup.geometry("350x350")
-        popup.grab_set()  # Empêche d'interagir avec la fenêtre principale tant que le popup est ouvert
+        popup.geometry("380x480")
+        popup.grab_set()
         
-        # Titre du formulaire
         tk.Label(popup, text="Ajouter un nouveau matériel", font=("Arial", 12, "bold")).pack(pady=15)
         
-        # Conteneur centré pour aligner les labels et les champs de saisie
         form_frame = tk.Frame(popup)
         form_frame.pack(padx=20, fill="x")
         
-        # Champ Nom
-        tk.Label(form_frame, text="Nom : ", anchor='w').pack(anchor='w', pady=(5,0))
+        # --- CHAMPS FORMULAIRE ---
+        tk.Label(form_frame, text="Nom du matériel :", anchor="w").pack(fill="x", pady=(5, 0))
         entry_nom = tk.Entry(form_frame)
         entry_nom.pack(fill="x", pady=2)
         
-        # Champ Numéro de série
-        tk.Label(form_frame, text="Numéro de série : ", anchor='w').pack(anchor='w', pady=(5,0))
+        tk.Label(form_frame, text="Numéro de série :", anchor="w").pack(fill="x", pady=(5, 0))
         entry_serial = tk.Entry(form_frame)
         entry_serial.pack(fill="x", pady=2)
         
-        # Champ Catégorie
-        tk.Label(form_frame, text="Catégorie : ", anchor='w').pack(anchor='w', pady=(5,0))
-        categories = MaterialModel.get_all_categories_names()
-        entry_categorie = ttk.Combobox(form_frame, values=categories, state="readonly")
-        entry_categorie.current(0)
-        entry_categorie.pack(fill="x", pady=2)
+        tk.Label(form_frame, text="Catégorie :", anchor="w").pack(fill="x", pady=(5, 0))
+        try:
+            dict_cats = MaterielService.obtenir_categories_formulaire()
+            liste_categories = list(dict_cats.keys())
+        except Exception:
+            liste_categories = []
+        combo_cat = ttk.Combobox(form_frame, values=liste_categories, state="readonly")
+        if liste_categories:
+            combo_cat.current(0)
+        combo_cat.pack(fill="x", pady=2)
         
-        # Champ Quantité
-        tk.Label(form_frame, text="Quantité :").pack(anchor="w")
-        self.entry_quantite = ttk.Spinbox(form_frame, from_=0, to=10000, increment=1)
-        self.entry_quantite.pack(fill="x", pady=5)        
+        tk.Label(form_frame, text="Quantité :", anchor="w").pack(fill="x", pady=(5, 0))
+        entry_quantite = tk.Entry(form_frame)
+        entry_quantite.insert(0, "1")
+        entry_quantite.pack(fill="x", pady=2)
+        
+        tk.Label(form_frame, text="Statut :", anchor="w").pack(fill="x", pady=(5, 0))
+        liste_statuts = ["En stock", "Affecté", "En panne", "Hors service"]
+        combo_statut = ttk.Combobox(form_frame, values=liste_statuts, state="readonly")
+        combo_statut.current(0)
+        combo_statut.pack(fill="x", pady=2)
+        
+        tk.Label(form_frame, text="Date d'achat (AAAA-MM-JJ) :", anchor="w").pack(fill="x", pady=(5, 0))
+        entry_date = tk.Entry(form_frame)
+        entry_date.pack(fill="x", pady=2)
 
-        def soumettre_ajout(self, nom, serial_number, categorie, quantite, date_achat):
-            """Soumet les informations du nouveau matériel au modèle."""
+        def valider_et_enregistrer():
             try:
-                MaterialModel.create_material(nom, serial_number, categorie, quantite, date_achat)
+                MaterielService.ajouter_materiel(
+                    entry_nom.get(),
+                    entry_serial.get(),
+                    combo_cat.get(),
+                    entry_quantite.get(),
+                    combo_statut.get(),
+                    entry_date.get()
+                )
+                messagebox.showinfo("Succès", "Le matériel a été ajouté avec succès !", parent=popup)
                 self.charger_materiels()
-                messagebox.showinfo("Ajouter", "Le matériel a été ajouté avec succès.")
+                popup.destroy()
+            except ValueError as ve:
+                messagebox.showwarning("Saisie non valide", str(ve), parent=popup)
             except Exception as e:
-                messagebox.showerror("Ajouter", f"Erreur lors de l'ajout du matériel : {e}")
+                messagebox.showerror("Erreur système", f"Erreur lors de l'enregistrement : {e}", parent=popup)
 
-        # Bouton pour soumettre le formulaire
-        tk.Button(popup, text="Ajouter", command=lambda: soumettre_ajout(entry_nom.get(), entry_serial.get(), entry_categorie.get(), self.entry_quantite.get(), None)).pack(pady=20)
-
+        btn_enregistrer = tk.Button(
+            popup, text="Enregistrer", command=valider_et_enregistrer,
+            bg="#28A745", fg="white", font=("Arial", 10, "bold")
+        )
+        btn_enregistrer.pack(pady=20)
+        
     def modifier_materiel(self):
-        """Affiche une boîte de dialogue pour modifier un matériel existant."""
-        messagebox.showinfo("Modifier", "Fonction de modification à implémenter")
+        """Ouvre un popup pré-rempli pour modifier l'équipement sélectionné."""
+        selection = self.tableau.selection()
+        if not selection:
+            messagebox.showwarning("Sélection requise", "Veuillez sélectionner un matériel à modifier.", parent=self.root)
+            return
+
+        # Récupération des valeurs existantes dans la ligne sélectionnée
+        valeurs = self.tableau.item(selection[0], 'values')
+        mat_id, nom_actuel, serial_actuel, cat_actuelle, qte_actuelle, statut_actuel, date_actuelle = valeurs
+
+        popup = tk.Toplevel(self.root)
+        popup.title("Modifier un matériel")
+        popup.geometry("380x480")
+        popup.grab_set()
+        
+        tk.Label(popup, text="Modifier le matériel", font=("Arial", 12, "bold")).pack(pady=15)
+        form_frame = tk.Frame(popup)
+        form_frame.pack(padx=20, fill="x")
+        
+        # --- CHAMPS PRE-REMPLIS ---
+        tk.Label(form_frame, text="Nom du matériel :", anchor="w").pack(fill="x", pady=(5, 0))
+        entry_nom = tk.Entry(form_frame)
+        entry_nom.insert(0, nom_actuel)
+        entry_nom.pack(fill="x", pady=2)
+        
+        tk.Label(form_frame, text="Numéro de série :", anchor="w").pack(fill="x", pady=(5, 0))
+        entry_serial = tk.Entry(form_frame)
+        entry_serial.insert(0, serial_actuel)
+        entry_serial.pack(fill="x", pady=2)
+        
+        tk.Label(form_frame, text="Catégorie :", anchor="w").pack(fill="x", pady=(5, 0))
+        try:
+            dict_cats = MaterielService.obtenir_categories_formulaire()
+            liste_categories = list(dict_cats.keys())
+        except Exception:
+            liste_categories = []
+        combo_cat = ttk.Combobox(form_frame, values=liste_categories, state="readonly")
+        combo_cat.pack(fill="x", pady=2)
+        if cat_actuelle in liste_categories:
+            combo_cat.set(cat_actuelle)
+        elif liste_categories:
+            combo_cat.current(0)
+            
+        tk.Label(form_frame, text="Quantité :", anchor="w").pack(fill="x", pady=(5, 0))
+        entry_quantite = tk.Entry(form_frame)
+        entry_quantite.insert(0, qte_actuelle)
+        entry_quantite.pack(fill="x", pady=2)
+        
+        tk.Label(form_frame, text="Statut :", anchor="w").pack(fill="x", pady=(5, 0))
+        liste_statuts = ["En stock", "Affecté", "En panne", "Hors service"]
+        combo_statut = ttk.Combobox(form_frame, values=liste_statuts, state="readonly")
+        combo_statut.pack(fill="x", pady=2)
+        if statut_actuel in liste_statuts:
+            combo_statut.set(statut_actuel)
+        else:
+            combo_statut.current(0)
+            
+        tk.Label(form_frame, text="Date d'achat (AAAA-MM-JJ) :", anchor="w").pack(fill="x", pady=(5, 0))
+        entry_date = tk.Entry(form_frame)
+        entry_date.insert(0, date_actuelle if date_actuelle != "Non renseignée" else "")
+        entry_date.pack(fill="x", pady=2)
+
+        def valider_modification():
+            try:
+                MaterielService.modifier_materiel(
+                    mat_id,
+                    entry_nom.get(),
+                    entry_serial.get(),
+                    combo_cat.get(),
+                    entry_quantite.get(),
+                    combo_statut.get(),
+                    entry_date.get()
+                )
+                messagebox.showinfo("Succès", "Le matériel a été modifié avec succès !", parent=popup)
+                self.charger_materiels()
+                popup.destroy()
+            except ValueError as ve:
+                messagebox.showwarning("Saisie non valide", str(ve), parent=popup)
+            except Exception as e:
+                messagebox.showerror("Erreur système", f"Erreur lors de la modification : {e}", parent=popup)
+
+        btn_modifier = tk.Button(
+            popup, text="Enregistrer les modifications", command=valider_modification,
+            bg="#007ACC", fg="white", font=("Arial", 10, "bold")
+        )
+        btn_modifier.pack(pady=20)
 
     def supprimer_materiel(self):
-        """Affiche une boîte de dialogue pour supprimer un matériel existant."""
-        selected_item = self.tableau.selection()
-        if not selected_item:
-            messagebox.showwarning("Supprimer", "Veuillez sélectionner un matériel à supprimer.")
+        """Supprime définitivement le matériel sélectionné après validation."""
+        selection = self.tableau.selection()
+        if not selection:
+            messagebox.showwarning("Sélection requise", "Veuillez sélectionner un matériel à supprimer.", parent=self.root)
             return
-        values = self.tableau.item(selected_item[0])['values']
-        material_id = values[0]  # Supposant que l'ID est dans la première colonne
-        material_name = values[1]  # Supposant que le nom est dans la deuxième colonne
-        materiel_serial_number = values[2]  # Supposant que le numéro de série est dans la troisième colonne
+            
+        valeurs = self.tableau.item(selection[0], 'values')
+        mat_id, nom, serial, _, _, _, _ = valeurs
         
-        confirm = messagebox.askyesno("Supprimer", f"Êtes-vous sûr de vouloir supprimer le matériel '{material_name}' (N° de série: {materiel_serial_number}) ?")
+        confirm = messagebox.askyesno(
+            "Confirmation", 
+            f"Êtes-vous sûr de vouloir supprimer définitivement le matériel '{nom}' (S/N: {serial}) ?",
+            parent=self.root
+        )
         
         if confirm:
             try:
-                MaterialModel.delete_material(material_id)
+                MaterielService.supprimer_materiel(mat_id)
+                messagebox.showinfo("Succès", "Le matériel a bien été retiré de l'inventaire.", parent=self.root)
                 self.charger_materiels()
-                messagebox.showinfo("Supprimer", f"Le matériel '{material_name}' a été supprimé avec succès.")
             except Exception as e:
-                messagebox.showerror("Supprimer", f"Erreur lors de la suppression du matériel : {e}")
-        
+                messagebox.showerror("Erreur", f"Erreur lors de la suppression : {e}", parent=self.root)
 
     def __init__(self, root, dashboard_parent):
-        """Crée et affiche les informations du matériel
-        à l'intérieur de la fenêtre initiale donnée.
-        """
+        """Initialise la fenêtre graphique pour la liste du matériel."""
         self.dashboard_parent = dashboard_parent
         self.root = root
-        self.root.title("Matériels")
-        self.root.geometry("650x400")
-        
+        self.root.title("Gestion des Matériels")
+        self.root.geometry("850x480")
+
         def retour_dashboard_window():
             self.root.destroy()
             self.dashboard_parent.root.deiconify()
-                    
-        tk.Label(
-            root,
-            text="Informations des matériels",
-            font=("Arial", 12, "bold")
-        ).pack(pady=10)
-        
-        #tableau d'affichage des matériels
-        colonnes = ('id', 'nom', 'numéro de série', 'catégorie', 'quantité', 'status', 'date d\'achat')
+
+        tk.Label(root, text="Inventaire des Matériels Informatiques", font=("Arial", 14, "bold")).pack(pady=10)
+
+        # Structure du tableau Treeview (S'aligne sur les colonnes renvoyées par le service)
+        colonnes = ('id', 'nom', 'serial', 'categorie', 'quantite', 'statut', 'date_achat')
         self.tableau = ttk.Treeview(root, columns=colonnes, show='headings')
         
-        # En-têtes (Uniquement pour les colonnes que l'on VEUT voir)
-        self.tableau.heading('nom', text='Nom')
-        self.tableau.heading('numéro de série', text='Numéro de Série')
-        self.tableau.heading('catégorie', text='Catégorie')
-        self.tableau.heading('quantité', text='Quantité')
-        self.tableau.heading('status', text='Status')
-        self.tableau.heading('date d\'achat', text='Date d\'achat')
+        self.tableau.heading('nom', text='Nom du matériel')
+        self.tableau.heading('serial', text='N° de Série')
+        self.tableau.heading('categorie', text='Catégorie')
+        self.tableau.heading('quantite', text='Quantité')
+        self.tableau.heading('statut', text='Statut')
+        self.tableau.heading('date_achat', text="Date d'achat")
         
-        # Affichage du tableau
-        self.tableau.pack(pady=10, padx=10, fill='both', expand=True)
+        self.tableau.column('id', width=0, minwidth=0, stretch=False)  # Masqué
+        self.tableau.column('nom', width=150)
+        self.tableau.column('serial', width=120)
+        self.tableau.column('categorie', width=120)
+        self.tableau.column('quantite', width=80, anchor="center")
+        self.tableau.column('statut', width=110, anchor="center")
+        self.tableau.column('date_achat', width=110, anchor="center")
         
-        # Configuration des tailles de TOUTES les colonnes
-        self.tableau.column('id', width=0, minwidth=0, stretch=False)
-        self.tableau.column('nom', width=100)
-        self.tableau.column('numéro de série', width=100)
-        self.tableau.column('catégorie', width=100)
-        self.tableau.column('quantité', width=80)
-        self.tableau.column('status', width=100)
-        self.tableau.column('date d\'achat', width=100)
-        
-        # --- ZONE DES BOUTONS EN BAS ---
+        self.tableau.pack(fill="both", expand=True, padx=20, pady=10)
+
+        # Barre d'actions (Boutons inférieurs)
         zone_boutons = tk.Frame(root)
-        zone_boutons.pack(pady=10)
-        
-        # Bouton ajouter un matériel
+        zone_boutons.pack(fill="x", side=tk.BOTTOM, pady=20)
+
         btn_ajouter = tk.Button(
-            zone_boutons, 
-            text="Ajouter", 
-            command=self.ajouter_materiel,
-            bg="#28A745",
-            fg="white", font=("Arial", 9, "bold"),
-            padx=10, pady=5, cursor="hand2"
+            zone_boutons, text="Ajouter", command=self.ajouter_materiel,
+            bg="#28A745", fg="white", font=("Arial", 9, "bold"), padx=10, pady=5, cursor="hand2"
         )
         btn_ajouter.pack(side=tk.LEFT, padx=10)
         
-        # Bonton modifier un matériel
         btn_modifier = tk.Button(
-            zone_boutons, 
-            text="Modifier", 
-            command=self.modifier_materiel,
-            bg="#007ACC",
-            fg="white", font=("Arial", 9, "bold"),
-            padx=10, pady=5, cursor="hand2"
+            zone_boutons, text="Modifier", command=self.modifier_materiel,
+            bg="#007ACC", fg="white", font=("Arial", 9, "bold"), padx=10, pady=5, cursor="hand2"
         )
         btn_modifier.pack(side=tk.LEFT, padx=10)
 
-        # Bouton supprimer un matériel
         btn_supprimer = tk.Button(
-            zone_boutons, 
-            text="Supprimer", 
-            command=self.supprimer_materiel,
-            bg="#DC3545",
-            fg="white", font=("Arial", 9, "bold"),
-            padx=10, pady=5, cursor="hand2"
+            zone_boutons, text="Supprimer", command=self.supprimer_materiel,
+            bg="#DC3545", fg="white", font=("Arial", 9, "bold"), padx=10, pady=5, cursor="hand2"
         )
         btn_supprimer.pack(side=tk.LEFT, padx=10)
 
-        # Bouton de retour
-        btn_retour = tk.Button(
-            zone_boutons, 
-            text="Retour", 
-            command=retour_dashboard_window,
-            font=("Arial", 9, "bold"),
-            padx=10, pady=5, cursor="hand2"
-        )
-        btn_retour.pack(side=tk.LEFT, padx=10)
+        btn_retour = tk.Button(zone_boutons, text="Retour", command=retour_dashboard_window, padx=20)
+        btn_retour.pack(side=tk.RIGHT, padx=10)
 
         self.root.protocol("WM_DELETE_WINDOW", retour_dashboard_window)
 

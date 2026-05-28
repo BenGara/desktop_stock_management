@@ -235,5 +235,7 @@ class UserWindow:
 
         btn_retour = tk.Button(zone_boutons, text="Retour", command=retour_dashboard_window, padx=20)
         btn_retour.pack(side=tk.RIGHT, padx=10)
+        
+        self.root.protocol("WM_DELETE_WINDOW", retour_dashboard_window)
 
         self.charger_utilisateurs()

@@ -80,3 +80,49 @@ class AssignmentModel:
         connection.close()
 
         return assignments
+    
+    # À intégrer dans ton modèle de gestion des affectations/matériels
+    @staticmethod
+    def get_active_assignments():
+        """Renvoie la liste des matériels actuellement affectés (non retournés)."""
+        connection = get_connection()
+        cursor = connection.cursor()
+        # Jointure pour avoir des infos claires à l'écran (Nom utilisateur, Nom Matériel, Numéro de série)
+        query = """
+            SELECT a.id, u.firstname || ' ' || u.lastname AS utilisateur, m.name, m.serial_number, a.assignment_date
+            FROM assignments a
+            INNER JOIN users u ON a.user_id = u.id
+            INNER JOIN materials m ON a.material_id = m.id
+            WHERE a.active = 1
+        """
+        cursor.execute(query)
+        assignments = cursor.fetchall()
+        connection.close()
+        return assignments
+
+    @staticmethod
+    def process_material_return(assignment_id, material_status):
+        """Clôture l'affectation et met à jour le statut du matériel."""
+        connection = get_connection()
+        cursor = connection.cursor()
+        
+        # 1. On récupère le material_id lié à cette affectation avant de la clôturer
+        cursor.execute("SELECT material_id FROM assignments WHERE id = ?", (assignment_id,))
+        row = cursor.fetchone()
+        if not row:
+            connection.close()
+            raise ValueError("Affectation introuvable.")
+        material_id = row[0]
+
+        # 2. On passe l'affectation à inactive
+        cursor.execute("UPDATE assignments SET active = 0 WHERE id = ?", (assignment_id,))
+        
+        # 3. On met à jour le statut du matériel (ex: 'Disponible' ou 'En panne')
+        cursor.execute("UPDATE materials SET status = ? WHERE id = ?", (material_status, material_id))
+        
+        # 4. Optionnel : Si le matériel est déclaré en panne, on l'ajoute à la table breakdowns
+        if material_status == "En panne":
+            cursor.execute("INSERT INTO breakdowns (material_id, report_date) VALUES (?, DATE('now'))", (material_id,))
+
+        connection.commit()
+        connection.close()
