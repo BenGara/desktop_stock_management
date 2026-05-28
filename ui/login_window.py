@@ -56,7 +56,8 @@ class LoginWindow:
             )
 
             self.root.destroy()
-
+            
+            # gestion des roles à faire
             dashboard_root = tk.Tk()
 
             DashboardWindow(dashboard_root)

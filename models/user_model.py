@@ -6,6 +6,7 @@ from database import get_connection
 class UserModel:
     """Fournit des méthodes pour gérer les utilisateurs de l'application."""
 
+    # Méthodes de création d'utilisateur
     @staticmethod
     def create_user(firstname, lastname, email, password, role_id):
         """Ajoute un nouvel utilisateur dans la base de données."""
@@ -34,6 +35,7 @@ class UserModel:
         connection.commit()
         connection.close()
 
+    # Méthodes de récupération d'utilisateur
     @staticmethod
     def get_user_by_email(email):
         """Renvoie la ligne correspondant à
@@ -65,3 +67,60 @@ class UserModel:
         connection.close()
 
         return users
+    
+    @staticmethod
+    def update_user(user_id, firstname, lastname, email, role_id):
+        """Met à jour les informations d'un utilisateur dans la base de données."""
+        connection = get_connection()
+
+        connection.execute(
+            '''
+            UPDATE users
+            SET firstname = ?, lastname = ?, email = ?, role_id = ?
+            WHERE id = ?
+            ''',
+            (
+                firstname,
+                lastname,
+                email,
+                role_id,
+                user_id
+            )
+        )
+
+        connection.commit()
+        connection.close()
+        
+    @staticmethod
+    def modification_mdp(user_id, new_password):
+        """Met à jour le mot de passe d'un utilisateur dans la base de données."""
+        connection = get_connection()
+
+        connection.execute(
+            '''
+            UPDATE users
+            SET password = ?
+            WHERE id = ?
+            ''',
+            (
+                new_password,
+                user_id
+            )
+        )
+
+        connection.commit()
+        connection.close()
+    
+    # Méthodes de suppression d'utilisateur
+    @staticmethod
+    def delete_user(user_id):
+        """Supprime un utilisateur de la base de données."""
+        connection = get_connection()
+
+        connection.execute(
+            "DELETE FROM users WHERE id = ?",
+            (user_id,)
+        )
+
+        connection.commit()
+        connection.close()

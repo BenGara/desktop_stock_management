@@ -63,3 +63,40 @@ class MaterialModel:
         connection.close()
 
         return materials
+    
+    @staticmethod
+    def get_all_categories_names():
+        """Renvoie tous les noms de catégories de la base de données."""
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.execute("SELECT name FROM categories")
+        categories = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        connection.close()
+        return categories
+
+    @staticmethod
+    def delete_material(material_id):
+        """Supprime un matériel de la base de données."""
+        connection = get_connection()
+        
+        connection.execute(
+            "DELETE FROM materials WHERE id = ?",
+            (material_id,)
+        )
+
+        connection.commit()
+        connection.close()
+        
+    @staticmethod
+    def update_material(material_id, new_status):
+        """Met à jour le statut d'un matériel dans la base de données."""
+        connection = get_connection()
+        
+        connection.execute(
+            "UPDATE materials SET status = ? WHERE id = ?",
+            (new_status, material_id)
+        )
+
+        connection.commit()
+        connection.close()
