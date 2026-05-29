@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Module de l'interface utilisateur pour la fenêtre de gestion des utilisateurs."""
 
 import tkinter as tk

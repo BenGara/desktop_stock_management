@@ -1,15 +1,4 @@
-"""Service de gestion des permissions basé sur les rôles (RBAC).
-
-Définit les droits d'accès pour chaque rôle du système :
-- ADMIN       : accès complet à toutes les fonctionnalités
-- MANAGER     : gestion du stock, matériels, catégories, affectations, retours
-- EMPLOYEE    : lecture seule de ses matériels affectés
-
-Utilisation :
-    from services.permission_service import PermissionService
-    if PermissionService.peut(role, 'ajouter_materiel'):
-        ...
-"""
+"""Service de gestion des permissions basé sur les rôles (RBAC)."""
 
 # Matrice des permissions : permission -> set des rôles autorisés
 _PERMISSIONS = {

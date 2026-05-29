@@ -53,7 +53,7 @@ class MaterielService:
         if not cat_id:
             raise ValueError("La catégorie sélectionnée est invalide.")
 
-        # 2. MODIFICATION ICI : On passe uniquement les 4 paramètres attendus par le modèle
+        # 2. On passe uniquement les 4 paramètres attendus par le modèle
         MaterialModel.create_material(nom_clean, num_serie_clean, cat_id, quantite)
         
     @staticmethod
