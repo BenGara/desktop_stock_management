@@ -2,7 +2,8 @@
 
 import hashlib
 
-from models.user_model import UserModel
+import database
+from services.session_service import SessionService
 
 
 class AuthService:
@@ -11,37 +12,37 @@ class AuthService:
     """
 
     @staticmethod
-    def hash_password(password):
-        """Renvoie le hachage hexadécimal SHA-256
-        du mot de passe en clair fourni.
-        """
-        return hashlib.sha256(
-            password.encode()
-        ).hexdigest()
+    def hash_password(password: str) -> str:
+        """Renvoie le hachage hexadécimal SHA-256 du mot de passe en clair."""
+        return hashlib.sha256(password.encode()).hexdigest()
 
     @staticmethod
-    def login(email, password):
-        """Authentifie un utilisateur à l'aide de son adresse e-mail
-        et de son mot de passe.
+    def login(email: str, password: str):
+        """Authentifie un utilisateur et ouvre la session."""
+        connection = database.get_connection()
 
-        Renvoie la ligne de l'utilisateur en cas de succès,
-        ou None si les identifiants sont invalides.
-        """
-        user = UserModel.get_user_by_email(email)
+        # La jointure expose 'role_name' sans passer par UserModel
+        user = connection.execute(
+            """
+            SELECT users.*, roles.name AS role_name
+            FROM users
+            INNER JOIN roles ON users.role_id = roles.id
+            WHERE users.email = ?
+            """,
+            (email,)
+        ).fetchone()
 
         if not user:
             return None
 
-        hashed_password = AuthService.hash_password(password)
-
-        if user["password"] != hashed_password:
+        if user["password"] != AuthService.hash_password(password):
             return None
 
+        # Enregistre l'utilisateur en session
+        SessionService.ouvrir(user)
         return user
-    
+
     @staticmethod
-    def deconnexion():
-        """Réinitialise la session de l'utilisateur actuel."""
-        # Si tu stockes l'utilisateur connecté dans une variable globale ou de classe :
-        AuthService.utilisateur_connecte = None
-        pass
+    def deconnexion() -> None:
+        """Ferme la session de l'utilisateur actuel."""
+        SessionService.fermer()

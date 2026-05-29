@@ -19,24 +19,24 @@ class MaterialModel:
         return existing is not None
 
     @staticmethod
-    def create_material(name, serial_number, category_id, quantity):
-        """Insère un nouveau matériel avec un statut et une date par défaut en SQL."""
+    def create_material(name, serial_number, category_id, quantity,
+                        status="EN_STOCK", purchase_date=None):
+        """Insère un nouveau matériel en base de données."""
         connection = database.get_connection()
         connection.execute(
             '''
             INSERT INTO materials(name, serial_number, category_id, quantity, status, purchase_date)
-            VALUES (?, ?, ?, ?, 'EN_STOCK', DATE('now'))
+            VALUES (?, ?, ?, ?, ?, COALESCE(?, DATE('now')))
             ''',
-            (name, serial_number, category_id, quantity)
+            (name, serial_number, category_id, quantity, status, purchase_date)
         )
         connection.commit()
-        connection.close()
-                
+
     @staticmethod
     def get_all_materials():
         """Renvoie tous les matériels de la base de données."""
         connection = database.get_connection()
-        connection.row_factory = None 
+        connection.row_factory = None
         cursor = connection.cursor()
 
         cursor.execute("SELECT materials.id, materials.name, materials.serial_number, categories.name AS category_name, materials.quantity, materials.status, materials.purchase_date FROM materials INNER JOIN categories ON materials.category_id = categories.id")
@@ -44,7 +44,7 @@ class MaterialModel:
 
         cursor.close()
         return materials
-    
+
     @staticmethod
     def get_all_categories_names():
         """Renvoie tous les identifiants et noms de catégories de la base de données."""
@@ -54,21 +54,21 @@ class MaterialModel:
         categories = cursor.fetchall()  # Renvoie une liste de tuples : [(1, "Écran"), (2, "Ordinateur")]
         cursor.close()
         return categories
-        
+
     @staticmethod
     def update_material_full(material_id, name, serial_number, category_id, quantity, status, purchase_date):
         """Met à jour l'ensemble des informations d'un matériel dans la base de données."""
         connection = database.get_connection()
         connection.execute(
             '''
-            UPDATE materials 
+            UPDATE materials
             SET name = ?, serial_number = ?, category_id = ?, quantity = ?, status = ?, purchase_date = ?
             WHERE id = ?
             ''',
             (name, serial_number, category_id, quantity, status, purchase_date, material_id)
         )
         connection.commit()
-                
+
     @staticmethod
     def delete_material(material_id):
         """Supprime un matériel de la base de données."""

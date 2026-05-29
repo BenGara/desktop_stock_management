@@ -41,7 +41,6 @@ class JournalWindow:
             font=("Arial", 14, "bold"), bg="#F8F9FA", fg="#2C3E50"
         ).pack(pady=(15, 10), anchor="w", padx=20)
         
-        # --- NOUVEAU CONTENEUR POUR LE TABLEAU ---
         zone_tableau = tk.Frame(root, bg="#F8F9FA")
         zone_tableau.pack(fill="both", expand=True)
 
@@ -49,7 +48,7 @@ class JournalWindow:
         colonnes = ('id', 'nom_materiel', 'nom_employee', 'date_assignation', 'date_retour')
         self.tableau = ttk.Treeview(zone_tableau, columns=colonnes, show='headings', selectmode="browse")
         
-        # En-têtes (Uniquement pour les colonnes que l'on VEUT voir)
+        # En-têtes (uniquement pour les colonnes que l'on veut voir)
         self.tableau.heading('nom_materiel', text='Nom du Matériel')
         self.tableau.heading('nom_employee', text='Nom de l\'Employé')
         self.tableau.heading('date_assignation', text='Date d\'Assignation')
@@ -58,18 +57,15 @@ class JournalWindow:
         # Affichage du tableau
         self.tableau.pack(pady=10, padx=10, fill='both', expand=True)
         
-        # Configuration des tailles de TOUTES les colonnes
+        # Configuration des tailles de toutes les colonnes
         self.tableau.column('id', width=0, minwidth=0, stretch=False)
-        self.tableau.column('nom_materiel', width=180)      # Augmenté
-        self.tableau.column('nom_employee', width=150)      # Augmenté
-        self.tableau.column('date_assignation', width=130)  # Ajusté
-        self.tableau.column('date_retour', width=130)       # Ajusté        
+        self.tableau.column('nom_materiel', width=180)
+        self.tableau.column('nom_employee', width=150)
+        self.tableau.column('date_assignation', width=130)
+        self.tableau.column('date_retour', width=130)
         
         self.tableau.column('id', width=0, minwidth=0, stretch=False)
         
-        # =====================================================================
-        # ZONE INFÉRIEURE : BOUTONS DE CONTRÔLE BAS
-        # =====================================================================
         zone_boutons_bas = tk.Frame(root, bg="#F8F9FA")
         zone_boutons_bas.pack(fill="x", side=tk.BOTTOM, pady=(0, 15), padx=20)
         
