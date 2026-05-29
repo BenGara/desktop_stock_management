@@ -19,5 +19,5 @@ python main.py
 
 ### Tests
 ```
-python -m unittest discover tests
+python -m pytest tests/ -v
 ```

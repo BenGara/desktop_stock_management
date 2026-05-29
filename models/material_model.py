@@ -1,6 +1,6 @@
 """Modèle de gestion de la création et de la récupération des données."""
 
-from database import get_connection
+import database
 
 
 class MaterialModel:
@@ -9,20 +9,19 @@ class MaterialModel:
     @staticmethod
     def is_serial_number_exists(serial_number, exclude_id=None):
         """Vérifie si un numéro de série existe déjà en base de données."""
-        connection = get_connection()
+        connection = database.get_connection()
         if exclude_id:
             query = "SELECT 1 FROM materials WHERE serial_number = ? AND id != ?"
             existing = connection.execute(query, (serial_number, exclude_id)).fetchone()
         else:
             query = "SELECT 1 FROM materials WHERE serial_number = ?"
             existing = connection.execute(query, (serial_number,)).fetchone()
-        connection.close()
         return existing is not None
 
     @staticmethod
     def create_material(name, serial_number, category_id, quantity, status, purchase_date):
         """Insère un nouveau matériel dans la base de données."""
-        connection = get_connection()
+        connection = database.get_connection()
         connection.execute(
             '''
             INSERT INTO materials(name, serial_number, category_id, quantity, status, purchase_date)
@@ -31,12 +30,10 @@ class MaterialModel:
             (name, serial_number, category_id, quantity, status, purchase_date)
         )
         connection.commit()
-        connection.close()
-
     @staticmethod
     def get_all_materials():
         """Renvoie tous les matériels de la base de données."""
-        connection = get_connection()
+        connection = database.get_connection()
         connection.row_factory = None 
         cursor = connection.cursor()
 
@@ -44,24 +41,22 @@ class MaterialModel:
         materials = cursor.fetchall()
 
         cursor.close()
-        connection.close()
         return materials
     
     @staticmethod
     def get_all_categories_names():
         """Renvoie tous les noms de catégories de la base de données."""
-        connection = get_connection()
+        connection = database.get_connection()
         cursor = connection.cursor()
         cursor.execute("SELECT name FROM categories")
         categories = [row[0] for row in cursor.fetchall()]
         cursor.close()
-        connection.close()
         return categories
         
     @staticmethod
     def update_material_full(material_id, name, serial_number, category_id, quantity, status, purchase_date):
         """Met à jour l'ensemble des informations d'un matériel dans la base de données."""
-        connection = get_connection()
+        connection = database.get_connection()
         connection.execute(
             '''
             UPDATE materials 
@@ -71,12 +66,10 @@ class MaterialModel:
             (name, serial_number, category_id, quantity, status, purchase_date, material_id)
         )
         connection.commit()
-        connection.close()
                 
     @staticmethod
     def delete_material(material_id):
         """Supprime un matériel de la base de données."""
-        connection = get_connection()
+        connection = database.get_connection()
         connection.execute("DELETE FROM materials WHERE id = ?", (material_id,))
         connection.commit()
-        connection.close()
