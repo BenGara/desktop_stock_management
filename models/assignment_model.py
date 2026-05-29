@@ -130,3 +130,22 @@ class AssignmentModel:
             )
 
         connection.commit()
+
+    @staticmethod
+    def get_materials_by_user(user_id):
+        """Récupère uniquement les matériels actuellement affectés à un utilisateur donné."""
+        connection = database.get_connection()
+        cursor = connection.cursor()
+        cursor.execute(
+            '''
+            SELECT m.name, m.serial_number, c.name, a.assignment_date
+            FROM assignments a
+            INNER JOIN materials m ON a.material_id = m.id
+            INNER JOIN categories c ON m.category_id = c.id
+            WHERE a.user_id = ?
+            ''',
+            (user_id,)
+        )
+        rows = cursor.fetchall()
+        cursor.close()
+        return rows
