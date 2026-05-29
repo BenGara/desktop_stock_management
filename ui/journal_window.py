@@ -1,3 +1,4 @@
+from logging import root
 import tkinter as tk
 from tkinter import ttk, messagebox
 from models.assignment_model import AssignmentModel
@@ -25,24 +26,29 @@ class JournalWindow:
         self.dashboard_parent = dashboard_parent
         self.root = root
         self.root.title("Journal")
-        self.root.geometry("650x400")
+        self.root.geometry("800x450")
         
         def retour_dashboard_window():
             self.root.destroy()
             self.dashboard_parent.root.deiconify()
+            self.dashboard_parent.refresh()
             
         self.root.protocol("WM_DELETE_WINDOW", retour_dashboard_window)
         
         tk.Label(
             root,
-            text="Liste des journaux",
-            font=("Arial", 12, "bold")
-        ).pack(pady=10)
+            text="Historique & Journal des Assignations",
+            font=("Arial", 14, "bold"), bg="#F8F9FA", fg="#2C3E50"
+        ).pack(pady=(15, 10), anchor="w", padx=20)
+        
+        # --- NOUVEAU CONTENEUR POUR LE TABLEAU ---
+        zone_tableau = tk.Frame(root, bg="#F8F9FA")
+        zone_tableau.pack(fill="both", expand=True)
 
-        # Structure du tableau
+        # Structure du tableau (associé à zone_tableau et ajout de selectmode)
         colonnes = ('id', 'nom_materiel', 'nom_employee', 'date_assignation', 'date_retour')
-        self.tableau = ttk.Treeview(root, columns=colonnes, show='headings')
-                
+        self.tableau = ttk.Treeview(zone_tableau, columns=colonnes, show='headings', selectmode="browse")
+        
         # En-têtes (Uniquement pour les colonnes que l'on VEUT voir)
         self.tableau.heading('nom_materiel', text='Nom du Matériel')
         self.tableau.heading('nom_employee', text='Nom de l\'Employé')
@@ -54,25 +60,31 @@ class JournalWindow:
         
         # Configuration des tailles de TOUTES les colonnes
         self.tableau.column('id', width=0, minwidth=0, stretch=False)
-        self.tableau.column('nom_materiel', width=100)
-        self.tableau.column('nom_employee', width=100)
-        self.tableau.column('date_assignation', width=100)
-        self.tableau.column('date_retour', width=100)
-        
+        self.tableau.column('nom_materiel', width=180)      # Augmenté
+        self.tableau.column('nom_employee', width=150)      # Augmenté
+        self.tableau.column('date_assignation', width=130)  # Ajusté
+        self.tableau.column('date_retour', width=130)       # Ajusté        
         
         self.tableau.column('id', width=0, minwidth=0, stretch=False)
         
-        # --- ZONE DES BOUTONS EN BAS ---
-        zone_boutons = tk.Frame(root)
-        zone_boutons.pack(pady=10)
+        # =====================================================================
+        # ZONE INFÉRIEURE : BOUTONS DE CONTRÔLE BAS
+        # =====================================================================
+        zone_boutons_bas = tk.Frame(root, bg="#F8F9FA")
+        zone_boutons_bas.pack(fill="x", side=tk.BOTTOM, pady=(0, 15), padx=20)
         
-        # Bouton de retour
         btn_retour = tk.Button(
-            zone_boutons, 
+            zone_boutons_bas, 
             text="Retour", 
             command=retour_dashboard_window,
-            padx=10
+            bg="#7F8C8D", 
+            fg="white", 
+            font=("Arial", 9, "bold"), 
+            relief="flat", 
+            padx=15, 
+            pady=6, 
+            cursor="hand2"
         )
-        btn_retour.pack(side=tk.LEFT, padx=10)
+        btn_retour.pack(side=tk.RIGHT)
         
         self.charger_journaux()

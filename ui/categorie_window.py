@@ -1,5 +1,6 @@
 """Module de l'interface utilisateur pour la fenêtre de gestion des catégories."""
 
+from logging import root
 import tkinter as tk
 from tkinter import ttk, messagebox
 from services.categorie_service import CategorieService
@@ -114,56 +115,59 @@ class CategorieWindow:
         """Initialise la fenêtre avec le formulaire à gauche et le tableau à droite."""
         self.dashboard_parent = dashboard_parent
         self.root = root
-        self.root.title("Gestion des Catégories")
-        self.root.geometry("850x450")
+        self.root.title("Gestion des Catégories de Matériel")
+        self.root.geometry("800x450")
+        self.root.configure(bg="#F8F9FA")
         self.id_selectionne = None
 
         def retour_dashboard_window():
             self.root.destroy()
             self.dashboard_parent.root.deiconify()
 
-        # Titre Principal
-        tk.Label(root, text="Gestion des Catégories de Matériel", font=("Arial", 14, "bold")).pack(pady=10)
-
+        # Titre général stylisé
+        tk.Label(
+            root, text="Catégories de Matériels", 
+            font=("Arial", 14, "bold"), bg="#F8F9FA", fg="#2C3E50"
+        ).pack(pady=(15, 10), anchor="w", padx=20)
+        
         # Zone Centrale divisée en 2 (Gauche = Formulaire, Droite = Tableau)
         zone_centrale = tk.Frame(root)
         zone_centrale.pack(fill="both", expand=True, padx=20, pady=5)
 
         # =====================================================================
-        # CÔTÉ GAUCHE : FORMULAIRE D'AJOUT ET MODIFICATION
+        # CÔTÉ GAUCHE : FORMULAIRE DE TYPE CARTE (Card effect)
         # =====================================================================
-        frame_gauche = tk.LabelFrame(zone_centrale, text=" Formulaire ", padx=15, pady=15)
-        frame_gauche.pack(side=tk.LEFT, fill="y", padx=(0, 15))
+        # frame_gauche devient zone_gauche pour correspondre au design épuré
+        zone_gauche = tk.Frame(zone_centrale, bg="white", bd=1, relief="groove", padx=15, pady=15, width=260)
+        zone_gauche.pack(side=tk.LEFT, fill="both", padx=(0, 10), expand=False)        
+        zone_gauche.pack_propagate(False)
 
-        self.lbl_form_title = tk.Label(frame_gauche, text="Nouvelle Catégorie", font=("Arial", 11, "bold"))
-        self.lbl_form_title.pack(anchor="w", pady=(0, 10))
+        self.lbl_form_title = tk.Label(zone_gauche, text="Nouvelle Catégorie", font=("Arial", 11, "bold"), bg="white", fg="#2C3E50")
+        self.lbl_form_title.pack(anchor="w", pady=(0, 15))
 
-        tk.Label(frame_gauche, text="Nom de la catégorie :", anchor="w").pack(fill="x", pady=(5, 0))
-        self.entry_nom = tk.Entry(frame_gauche, width=25)
-        self.entry_nom.pack(fill="x", pady=2)
+        # Dictionnaires de styles partagés
+        style_label = {"bg": "white", "fg": "#7F8C8D", "font": ("Arial", 9, "bold")}
+        style_entry = {"font": ("Arial", 10), "bg": "#F8F9FA", "highlightthickness": 1, "highlightbackground": "#BDC3C7", "relief": "flat"}
+        style_action_btn = {"font": ("Arial", 9, "bold"), "fg": "white", "relief": "flat", "pady": 6, "cursor": "hand2"}
 
-        tk.Label(frame_gauche, text="Description :", anchor="w").pack(fill="x", pady=(5, 0))
-        self.entry_desc = tk.Entry(frame_gauche, width=25)
-        self.entry_desc.pack(fill="x", pady=2)
+        tk.Label(zone_gauche, text="Nom de la catégorie", **style_label).pack(anchor="w")
+        self.entry_nom = tk.Entry(zone_gauche, **style_entry)
+        self.entry_nom.pack(fill="x", pady=(2, 12), ipady=3)
 
-        # Boutons d'action du formulaire (Placés juste en dessous des champs à gauche)
-        self.btn_enregistrer = tk.Button(
-            frame_gauche, text="Enregistrer (Ajout)", command=self.valider_et_ajouter,
-            bg="#28A745", fg="white", font=("Arial", 9, "bold"), cursor="hand2"
-        )
-        self.btn_enregistrer.pack(fill="x", pady=(15, 5))
+        tk.Label(zone_gauche, text="Description complète", **style_label).pack(anchor="w")
+        self.entry_desc = tk.Entry(zone_gauche, **style_entry)
+        self.entry_desc.pack(fill="x", pady=(2, 20), ipady=3)
 
-        self.btn_modifier = tk.Button(
-            frame_gauche, text="Enregistrer (Modif)", command=self.valider_et_modifier,
-            bg="#007ACC", fg="white", font=("Arial", 9, "bold"), cursor="hand2", state=tk.DISABLED
-        )
-        self.btn_modifier.pack(fill="x", pady=5)
+        # Boutons du formulaire avec les commandes d'origine du Code 1
+        self.btn_enregistrer = tk.Button(zone_gauche, text="Créer", command=self.valider_et_ajouter, bg="#27AE60", **style_action_btn)
+        self.btn_enregistrer.pack(fill="x", pady=4)
+
+        self.btn_modifier = tk.Button(zone_gauche, text="Enregistrer", command=self.valider_et_modifier, bg="#2980B9", **style_action_btn, state=tk.DISABLED)
+        self.btn_modifier.pack(fill="x", pady=4)
+
+        btn_raz = tk.Button(zone_gauche, text="Réinitialiser", command=self.reinitialiser_formulaire, bg="#7F8C8D", **style_action_btn)
+        btn_raz.pack(fill="x", pady=(15, 0))
         
-        btn_raz = tk.Button(
-            frame_gauche, text="Vider / Annuler", command=self.reinitialiser_formulaire,
-            bg="#6C757D", fg="white", font=("Arial", 9)
-        )
-        btn_raz.pack(fill="x", pady=(5, 0))
 
         # =====================================================================
         # CÔTÉ DROIT : LE TABLEAU (TREEVIEW)
@@ -172,7 +176,7 @@ class CategorieWindow:
         frame_droit.pack(side=tk.RIGHT, fill="both", expand=True)
 
         colonnes = ('id', 'nom', 'description')
-        self.tableau = ttk.Treeview(frame_droit, columns=colonnes, show='headings')
+        self.tableau = ttk.Treeview(frame_droit, columns=colonnes, show='headings', selectmode="browse")
         
         self.tableau.heading('nom', text='Nom de la catégorie')
         self.tableau.heading('description', text='Description')
@@ -189,20 +193,21 @@ class CategorieWindow:
         # =====================================================================
         # ZONE INFERIEURE : LES BOUTONS EN BAS
         # =====================================================================
-        zone_boutons_bas = tk.Frame(root)
-        zone_boutons_bas.pack(fill="x", side=tk.BOTTOM, pady=15, padx=20)
+        zone_boutons_bas = tk.Frame(root, bg="#F8F9FA")
+        zone_boutons_bas.pack(fill="x", side=tk.BOTTOM, pady=(0, 15), padx=20)
 
-        # Le bouton Supprimer reste en bas à gauche
         btn_supprimer = tk.Button(
-            zone_boutons_bas, text="Supprimer la sélection", command=self.suppression_categorie,
-            bg="#DC3545", fg="white", font=("Arial", 9, "bold"), padx=10, pady=5, cursor="hand2"
+            zone_boutons_bas, text="Supprimer", command=self.suppression_categorie,
+            bg="#C0392B", fg="white", font=("Arial", 9, "bold"), relief="flat", padx=15, pady=6, cursor="hand2"
         )
         btn_supprimer.pack(side=tk.LEFT)
 
-        # Le bouton Retour reste en bas à droite
-        btn_retour = tk.Button(zone_boutons_bas, text="Retour", command=retour_dashboard_window, padx=20, pady=5)
+        btn_retour = tk.Button(
+            zone_boutons_bas, text="Retour", command=retour_dashboard_window,
+            bg="#7F8C8D", fg="white", font=("Arial", 9, "bold"), relief="flat", padx=15, pady=6, cursor="hand2"
+        )
         btn_retour.pack(side=tk.RIGHT)
-
+        
         # Interception de la croix rouge de fermeture du système
         self.root.protocol("WM_DELETE_WINDOW", retour_dashboard_window)
 
