@@ -22,6 +22,7 @@ class MaterielWindow:
         except Exception as e:
             messagebox.showerror("Erreur", f"Impossible de charger les matériels : {e}", parent=self.root)
     
+    
     def ajouter_materiel(self):
         """Affiche une boîte de dialogue pour ajouter un nouveau matériel."""
         popup = tk.Toplevel(self.root)
@@ -57,35 +58,38 @@ class MaterielWindow:
         combo_cat.pack(fill="x", pady=(2, 8))
         if liste_categories:
             combo_cat.current(0)
-        combo_cat.pack(fill="x", pady=2)
         
         tk.Label(form_frame, text="Quantité", **style_label).pack(anchor="w")
-        entry_quantite = tk.Entry(form_frame, **style_entry)
-        entry_quantite.insert(0, "1")
+        entry_quantite = tk.Spinbox(form_frame, from_=1, to=1000, increment=1, **style_entry)
         entry_quantite.pack(fill="x", pady=(2, 8), ipady=3)
         
-        def valider_et_enregistrer():
-            try:
-                MaterielService.ajouter_materiel(
-                    entry_nom.get(),
-                    entry_serial.get(),
-                    combo_cat.get(),
-                    entry_quantite.get(),
-                )
-                messagebox.showinfo("Succès", "Le matériel a été ajouté avec succès !", parent=popup)
-                self.charger_materiels()
-                popup.destroy()
-            except ValueError as ve:
-                messagebox.showwarning("Saisie non valide", str(ve), parent=popup)
-            except Exception as e:
-                messagebox.showerror("Erreur système", f"Erreur lors de l'enregistrement : {e}", parent=popup)
+        def valider_et_enregistrer(self, popup, entry_nom, entry_serie, combo_cat, entry_quantite):
+            """Récupère les 4 champs de l'UI et appelle le service d'ajout."""
+            nom = entry_nom.get()
+            num_serie = entry_serie.get()
+            categorie = combo_cat.get()
+            quantite = entry_quantite.get()
 
-        btn_enregistrer = tk.Button(
+            try:
+                # Appel du service avec les 4 arguments uniquement
+                MaterielService.ajouter_materiel(nom, num_serie, categorie, quantite)
+                
+                messagebox.showinfo("Succès", "Le matériel a bien été ajouté !", parent=popup)
+                popup.destroy()         # Ferme la fenêtre pop-up
+                self.charger_materiels() # Actualise le tableau principal
+                
+            except ValueError as e:
+                messagebox.showerror("Erreur de saisie", str(e), parent=popup)
+            except Exception as e:
+                messagebox.showerror("Erreur", f"Une erreur est survenue : {e}", parent=popup)
+            
+            btn_enregistrer = tk.Button(
             popup, text="Enregistrer l'équipement", command=valider_et_enregistrer,
             bg="#27AE60", fg="white", font=("Arial", 10, "bold"), relief="flat", cursor="hand2"
-        )
-        btn_enregistrer.pack(fill="x", padx=20, pady=10, ipady=5)
-                
+            )
+            btn_enregistrer.pack(fill="x", padx=20, pady=10, ipady=5)
+
+
     def modifier_materiel(self):
         """Ouvre un popup pré-rempli pour modifier l'équipement sélectionné."""
         selection = self.tableau.selection()

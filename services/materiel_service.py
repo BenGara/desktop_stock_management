@@ -28,17 +28,14 @@ class MaterielService:
         return {cat_name.capitalize(): cat_id for cat_id, cat_name in categories_brutes}
 
     @staticmethod
-    def ajouter_materiel(nom, num_serie, nom_categorie, quantite_str, statut_affichage, date_achat):
-        """Applique les validations métier et demande l'insertion du matériel."""
+    def ajouter_materiel(nom, num_serie, nom_categorie, quantite_str):
+        """Valide les données de l'UI et crée le matériel sans exiger de date ni de statut."""
         nom_clean = nom.strip()
         num_serie_clean = num_serie.strip()
-        date_clean = date_achat.strip()
 
-        # 1. Validation des champs obligatoires
         if not nom_clean or not num_serie_clean or not nom_categorie:
-            raise ValueError("Le nom, le numéro de série et la catégorie sont obligatoires.")
+            raise ValueError("Le nom, le numéro de série et la catégorie ne peuvent pas être vides.")
 
-        # 2. Validation et conversion de la quantité
         try:
             quantite = int(quantite_str)
             if quantite < 0:
@@ -46,21 +43,19 @@ class MaterielService:
         except ValueError:
             raise ValueError("La quantité doit être un nombre entier positif.")
 
-        # 3. Vérification de l'unicité du numéro de série (Règle de gestion du PDF)
-        if MaterialModel.is_serial_number_exists(num_serie_clean):
-            raise ValueError(f"Le numéro de série '{num_serie_clean}' est déjà attribué à un autre matériel.")
+        # Vérification de l'unicité du numéro de série
+        if MaterielService.is_serial_number_exists(num_serie_clean):
+            raise ValueError(f"Le numéro de série '{num_serie_clean}' est déjà utilisé.")
 
-        # 4. Récupération de l'ID de la catégorie correspondante
+        # 1. Récupération de l'ID de la catégorie
         dict_cats = MaterielService.obtenir_categories_formulaire()
         cat_id = dict_cats.get(nom_categorie)
         if not cat_id:
             raise ValueError("La catégorie sélectionnée est invalide.")
 
-        # 5. Normalisation du statut pour la BDD (ex: 'En stock' -> 'EN_STOCK')
-        statut_bdd = statut_affichage.strip().upper().replace(' ', '_')
-
-        MaterialModel.create_material(nom_clean, num_serie_clean, cat_id, quantite, statut_bdd, date_clean)
-
+        # 2. MODIFICATION ICI : On passe uniquement les 4 paramètres attendus par le modèle
+        MaterialModel.create_material(nom_clean, num_serie_clean, cat_id, quantite)
+        
     @staticmethod
     def modifier_materiel(material_id, nom, num_serie, nom_categorie, quantite_str, statut_affichage, date_achat):
         """Valide et met à jour un matériel existant."""

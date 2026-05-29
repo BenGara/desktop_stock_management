@@ -19,17 +19,19 @@ class MaterialModel:
         return existing is not None
 
     @staticmethod
-    def create_material(name, serial_number, category_id, quantity, status, purchase_date):
-        """Insère un nouveau matériel dans la base de données."""
+    def create_material(name, serial_number, category_id, quantity):
+        """Insère un nouveau matériel avec un statut et une date par défaut en SQL."""
         connection = database.get_connection()
         connection.execute(
             '''
             INSERT INTO materials(name, serial_number, category_id, quantity, status, purchase_date)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, 'EN_STOCK', DATE('now'))
             ''',
-            (name, serial_number, category_id, quantity, status, purchase_date)
+            (name, serial_number, category_id, quantity)
         )
         connection.commit()
+        connection.close()
+                
     @staticmethod
     def get_all_materials():
         """Renvoie tous les matériels de la base de données."""
