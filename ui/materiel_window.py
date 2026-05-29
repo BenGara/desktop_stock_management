@@ -40,15 +40,17 @@ class MaterielWindow:
         style_entry = {"font": ("Arial", 10), "bg": "white", "highlightthickness": 1, "highlightbackground": "#BDC3C7", "relief": "flat"}
         
         # --- CHAMPS FORMULAIRE ---
-        tk.Label(form_frame, text="Nom du matériel", **style_label).pack(anchor="w")
+        tk.Label(form_frame, text="Nom du matériel", bg="#F8F9FA", fg="#7F8C8D", font=("Arial", 9, "bold")).pack(anchor="w")
         entry_nom = tk.Entry(form_frame, **style_entry)
         entry_nom.pack(fill="x", pady=(2, 8), ipady=3)
                 
-        tk.Label(form_frame, text="Numéro de série", **style_label).pack(anchor="w")
+        tk.Label(form_frame, text="Numéro de série", bg="#F8F9FA", fg="#7F8C8D", font=("Arial", 9, "bold")).pack(anchor="w")
         entry_serial = tk.Entry(form_frame, **style_entry)
         entry_serial.pack(fill="x", pady=(2, 8), ipady=3)
         
-        tk.Label(form_frame, text="Catégorie", **style_label).pack(anchor="w")
+        tk.Label(form_frame, text="Catégorie", bg="#F8F9FA", fg="#7F8C8D", font=("Arial", 9, "bold")).pack(anchor="w")
+        
+        
         try:
             dict_cats = MaterielService.obtenir_categories_formulaire()
             liste_categories = list(dict_cats.keys())
@@ -63,32 +65,29 @@ class MaterielWindow:
         entry_quantite = tk.Spinbox(form_frame, from_=1, to=1000, increment=1, **style_entry)
         entry_quantite.pack(fill="x", pady=(2, 8), ipady=3)
         
-        def valider_et_enregistrer(self, popup, entry_nom, entry_serie, combo_cat, entry_quantite):
+        def valider_et_enregistrer():
             """Récupère les 4 champs de l'UI et appelle le service d'ajout."""
             nom = entry_nom.get()
-            num_serie = entry_serie.get()
+            num_serie = entry_serial.get() # Attention c'était "entry_serial" et pas "entry_serie"
             categorie = combo_cat.get()
             quantite = entry_quantite.get()
 
             try:
-                # Appel du service avec les 4 arguments uniquement
                 MaterielService.ajouter_materiel(nom, num_serie, categorie, quantite)
-                
                 messagebox.showinfo("Succès", "Le matériel a bien été ajouté !", parent=popup)
-                popup.destroy()         # Ferme la fenêtre pop-up
-                self.charger_materiels() # Actualise le tableau principal
-                
+                popup.destroy()         
+                self.charger_materiels() 
             except ValueError as e:
                 messagebox.showerror("Erreur de saisie", str(e), parent=popup)
             except Exception as e:
                 messagebox.showerror("Erreur", f"Une erreur est survenue : {e}", parent=popup)
             
-            btn_enregistrer = tk.Button(
-            popup, text="Enregistrer l'équipement", command=valider_et_enregistrer,
+        # 2. On place le bouton EN DEHORS (après) la fonction valider_et_enregistrer
+        btn_enregistrer = tk.Button(
+            popup, text="Enregistrer l'équipement", command=valider_et_enregistrer, # Appel direct
             bg="#27AE60", fg="white", font=("Arial", 10, "bold"), relief="flat", cursor="hand2"
-            )
-            btn_enregistrer.pack(fill="x", padx=20, pady=10, ipady=5)
-
+        )
+        btn_enregistrer.pack(fill="x", padx=20, pady=10, ipady=5)
 
     def modifier_materiel(self):
         """Ouvre un popup pré-rempli pour modifier l'équipement sélectionné."""
@@ -96,62 +95,66 @@ class MaterielWindow:
         if not selection:
             messagebox.showwarning("Sélection requise", "Veuillez sélectionner un matériel à modifier.", parent=self.root)
             return
-
+        
         # Récupération des valeurs existantes dans la ligne sélectionnée
         valeurs = self.tableau.item(selection[0], 'values')
         mat_id, nom_actuel, serial_actuel, cat_actuelle, qte_actuelle, statut_actuel, date_actuelle = valeurs
 
         popup = tk.Toplevel(self.root)
         popup.title("Modifier un matériel")
-        popup.geometry("380x480")
+        popup.geometry("380x520")               # Légèrement plus grand pour le confort visuel
+        popup.configure(bg="#F8F9FA")           # Fond gris clair
         popup.grab_set()
         
-        tk.Label(popup, text="Modifier le matériel", font=("Arial", 12, "bold")).pack(pady=15)
-        form_frame = tk.Frame(popup)
+        tk.Label(popup, text="Modifier le matériel", font=("Arial", 12, "bold"), bg="#F8F9FA", fg="#2C3E50").pack(pady=15)
+        
+        form_frame = tk.Frame(popup, bg="#F8F9FA") # Fond gris clair pour l'alignement
         form_frame.pack(padx=20, fill="x")
         
+        style_entry = {"font": ("Arial", 10), "bg": "white", "highlightthickness": 1, "highlightbackground": "#BDC3C7", "relief": "flat"}
+
         # --- CHAMPS PRE-REMPLIS ---
-        tk.Label(form_frame, text="Nom du matériel :", anchor="w").pack(fill="x", pady=(5, 0))
-        entry_nom = tk.Entry(form_frame)
+        tk.Label(form_frame, text="Nom du matériel :", bg="#F8F9FA", fg="#7F8C8D", font=("Arial", 9, "bold")).pack(anchor="w", pady=(5, 0))
+        entry_nom = tk.Entry(form_frame, **style_entry)
         entry_nom.insert(0, nom_actuel)
-        entry_nom.pack(fill="x", pady=2)
+        entry_nom.pack(fill="x", pady=(2, 8), ipady=3)
         
-        tk.Label(form_frame, text="Numéro de série :", anchor="w").pack(fill="x", pady=(5, 0))
-        entry_serial = tk.Entry(form_frame)
+        tk.Label(form_frame, text="Numéro de série :", bg="#F8F9FA", fg="#7F8C8D", font=("Arial", 9, "bold")).pack(anchor="w", pady=(5, 0))
+        entry_serial = tk.Entry(form_frame, **style_entry)
         entry_serial.insert(0, serial_actuel)
-        entry_serial.pack(fill="x", pady=2)
+        entry_serial.pack(fill="x", pady=(2, 8), ipady=3)
         
-        tk.Label(form_frame, text="Catégorie :", anchor="w").pack(fill="x", pady=(5, 0))
+        tk.Label(form_frame, text="Catégorie", bg="#F8F9FA", fg="#7F8C8D", font=("Arial", 9, "bold")).pack(anchor="w")
         try:
             dict_cats = MaterielService.obtenir_categories_formulaire()
             liste_categories = list(dict_cats.keys())
-        except Exception:
+        except Exception as e:
+            print(f"DEBUG ERREUR CATÉGORIES : {e}")  # <--- AJOUTEZ CECI
             liste_categories = []
-        combo_cat = ttk.Combobox(form_frame, values=liste_categories, state="readonly")
-        combo_cat.pack(fill="x", pady=2)
-        if cat_actuelle in liste_categories:
-            combo_cat.set(cat_actuelle)
-        elif liste_categories:
-            combo_cat.current(0)
             
-        tk.Label(form_frame, text="Quantité :", anchor="w").pack(fill="x", pady=(5, 0))
-        entry_quantite = tk.Entry(form_frame)
+        combo_cat = ttk.Combobox(form_frame, values=liste_categories, state="readonly")
+        combo_cat.pack(fill="x", pady=(2, 8))
+        if liste_categories:
+            combo_cat.current(0)
+                        
+        tk.Label(form_frame, text="Quantité :", anchor="w", bg="#F8F9FA", fg="#7F8C8D", font=("Arial", 9, "bold")).pack(fill="x", pady=(5, 0))
+        entry_quantite = tk.Entry(form_frame, **style_entry)
         entry_quantite.insert(0, qte_actuelle)
-        entry_quantite.pack(fill="x", pady=2)
+        entry_quantite.pack(fill="x", pady=(2, 8), ipady=3)
         
-        tk.Label(form_frame, text="Statut :", anchor="w").pack(fill="x", pady=(5, 0))
+        tk.Label(form_frame, text="Statut :", anchor="w", bg="#F8F9FA", fg="#7F8C8D", font=("Arial", 9, "bold")).pack(fill="x", pady=(5, 0))
         liste_statuts = ["En stock", "Affecté", "En panne", "Hors service"]
         combo_statut = ttk.Combobox(form_frame, values=liste_statuts, state="readonly")
-        combo_statut.pack(fill="x", pady=2)
+        combo_statut.pack(fill="x", pady=(2, 8))
         if statut_actuel in liste_statuts:
             combo_statut.set(statut_actuel)
         else:
             combo_statut.current(0)
             
-        tk.Label(form_frame, text="Date d'achat (AAAA-MM-JJ) :", anchor="w").pack(fill="x", pady=(5, 0))
-        entry_date = tk.Entry(form_frame)
+        tk.Label(form_frame, text="Date d'achat (AAAA-MM-JJ) :", anchor="w", bg="#F8F9FA", fg="#7F8C8D", font=("Arial", 9, "bold")).pack(fill="x", pady=(5, 0))
+        entry_date = tk.Entry(form_frame, **style_entry)
         entry_date.insert(0, date_actuelle if date_actuelle != "Non renseignée" else "")
-        entry_date.pack(fill="x", pady=2)
+        entry_date.pack(fill="x", pady=(2, 8), ipady=3)
 
         def valider_modification():
             try:

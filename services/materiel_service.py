@@ -24,7 +24,7 @@ class MaterielService:
     @staticmethod
     def obtenir_categories_formulaire():
         """Récupère les catégories sous forme de dictionnaire {NomCapitalise: ID}."""
-        categories_brutes = MaterialModel.get_all_categories_names_with_ids()
+        categories_brutes = MaterialModel.get_all_categories_names()
         return {cat_name.capitalize(): cat_id for cat_id, cat_name in categories_brutes}
 
     @staticmethod

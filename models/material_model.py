@@ -47,11 +47,11 @@ class MaterialModel:
     
     @staticmethod
     def get_all_categories_names():
-        """Renvoie tous les noms de catégories de la base de données."""
+        """Renvoie tous les identifiants et noms de catégories de la base de données."""
         connection = database.get_connection()
         cursor = connection.cursor()
-        cursor.execute("SELECT name FROM categories")
-        categories = [row[0] for row in cursor.fetchall()]
+        cursor.execute("SELECT id, name FROM categories")
+        categories = cursor.fetchall()  # Renvoie une liste de tuples : [(1, "Écran"), (2, "Ordinateur")]
         cursor.close()
         return categories
         
