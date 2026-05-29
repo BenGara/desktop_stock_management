@@ -11,8 +11,6 @@ class MaterielService:
 
         for mat in materiels_bruts:
             mat_id, nom, num_serie, cat_nom, quantite, statut, date_achat = mat
-            
-            # Formatage de confort pour l'affichage (ex: 'EN_STOCK' -> 'En stock')
             statut_affichage = statut.replace('_', ' ').capitalize() if statut else "Inconnu"
             cat_affichage = cat_nom.capitalize() if cat_nom else "Sans catégorie"
             date_affichage = date_achat if date_achat else "Non renseignée"
@@ -43,17 +41,14 @@ class MaterielService:
         except ValueError:
             raise ValueError("La quantité doit être un nombre entier positif.")
 
-        # Vérification de l'unicité du numéro de série
-        if MaterielService.is_serial_number_exists(num_serie_clean):
+        if MaterialModel.is_serial_number_exists(num_serie_clean):
             raise ValueError(f"Le numéro de série '{num_serie_clean}' est déjà utilisé.")
 
-        # 1. Récupération de l'ID de la catégorie
         dict_cats = MaterielService.obtenir_categories_formulaire()
         cat_id = dict_cats.get(nom_categorie)
         if not cat_id:
             raise ValueError("La catégorie sélectionnée est invalide.")
 
-        # 2. MODIFICATION ICI : On passe uniquement les 4 paramètres attendus par le modèle
         MaterialModel.create_material(nom_clean, num_serie_clean, cat_id, quantite)
         
     @staticmethod

@@ -7,6 +7,7 @@ from ui.journal_window import JournalWindow
 from ui.user_window import UserWindow
 from ui.materiel_window import MaterielWindow
 from ui.categorie_window import CategorieWindow
+from ui.assignment_window import AssignmentWindow
 from ui.return_window import ReturnWindow
 
 from models.stat_model import StatModel
@@ -97,7 +98,11 @@ class DashboardWindow:
         def show_log_window():
             self.root.withdraw()
             JournalWindow(tk.Toplevel(self.root), self)
-                
+
+        def show_assignment_window():
+            self.root.withdraw()
+            AssignmentWindow(tk.Toplevel(self.root), self)
+
         def show_return_window():
             self.root.withdraw()
             ReturnWindow(tk.Toplevel(self.root), self)
@@ -141,6 +146,9 @@ class DashboardWindow:
         
         btn_return = tk.Button(sidebar, text="Retours de matériel", command=show_return_window, **style_btn)
         btn_return.pack(fill="x", padx=10, pady=4)
+
+        btn_assignment = tk.Button(sidebar, text="Affectation de matériel", command=show_assignment_window, **style_btn)
+        btn_assignment.pack(fill="x", padx=10, pady=4)
 
         btn_logout = tk.Button(
             sidebar, text="Déconnexion", command=self.gerer_deconnexion,
